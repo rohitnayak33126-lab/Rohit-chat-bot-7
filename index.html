@@ -1,0 +1,756 @@
+```html
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rohit AI Chatbot</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #0b1020;
+    --panel: #111a2e;
+    --border: #283550;
+    --text: #f4f7ff;
+    --muted: #9ca9c0;
+    --accent: #7c5cff;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 260px;
+    background: #080d19;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.logo span {
+    color: #a594ff;
+}
+
+.new-chat {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.sidebar-info {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-top: 10px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Main */
+
+.main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 68px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.header h2 {
+    font-size: 19px;
+}
+
+.status {
+    font-size: 12px;
+    color: #6ee7b7;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 25px 16px;
+    scroll-behavior: smooth;
+}
+
+.welcome {
+    max-width: 650px;
+    margin: 10vh auto 30px;
+    text-align: center;
+}
+
+.welcome .big-icon {
+    font-size: 55px;
+    margin-bottom: 20px;
+}
+
+.welcome h1 {
+    font-size: clamp(26px, 4vw, 38px);
+    margin-bottom: 12px;
+}
+
+.welcome p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.suggestion {
+    padding: 15px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.suggestion:hover {
+    border-color: var(--accent);
+}
+
+.message {
+    max-width: 800px;
+    margin: 0 auto 22px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #283550;
+    font-size: 18px;
+}
+
+.message.user .avatar {
+    background: var(--accent);
+}
+
+.bubble {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 15px;
+    border-radius: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.message.user .bubble {
+    background: #1a2440;
+}
+
+.bubble.error {
+    border-color: #a83f53;
+    color: #ffb6c0;
+}
+
+.copy-btn {
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.typing {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Composer */
+
+.composer-wrap {
+    padding: 12px 16px 20px;
+    background: linear-gradient(transparent, var(--bg) 20%);
+}
+
+.composer {
+    max-width: 800px;
+    margin: auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.api-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.api-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px;
+    background: #080d19;
+    border: 1px solid var(--border);
+    color: white;
+    border-radius: 8px;
+    outline: none;
+}
+
+.api-row button {
+    padding: 9px 12px;
+    background: #283550;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.api-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+textarea {
+    flex: 1;
+    min-width: 0;
+    resize: none;
+    max-height: 150px;
+    min-height: 42px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 10px 4px;
+}
+
+textarea::placeholder {
+    color: #8793aa;
+}
+
+.send-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.bottom-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 10px;
+}
+
+/* Mobile */
+
+@media (max-width: 650px) {
+    .sidebar {
+        display: none;
+    }
+
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+
+    .messages {
+        padding: 18px 12px;
+    }
+
+    .welcome {
+        margin-top: 7vh;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .composer-wrap {
+        padding: 8px 10px 12px;
+    }
+
+    .api-row {
+        flex-wrap: wrap;
+    }
+
+    .api-row input {
+        width: 100%;
+        flex-basis: 100%;
+    }
+
+    .api-row button {
+        flex: 1;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo">⚡ Rohit <span>AI</span></div>
+
+        <button class="new-chat" id="newChat">
+            + नई चैट
+        </button>
+
+        <div class="sidebar-info">
+            <p>🤖 GROQ AI Assistant</p>
+            <p>💬 सवाल पूछो</p>
+            <p>📚 पढ़ाई में मदद</p>
+            <p>💻 कोडिंग सीखो</p>
+            <p>🌐 हिंदी और अंग्रेज़ी</p>
+        </div>
+
+        <div class="sidebar-footer">
+            बनाया गया Rohit Nayak द्वारा<br>
+            Powered by Groq API
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="header">
+            <h2>🤖 Rohit AI</h2>
+            <div class="status" id="status">● तैयार</div>
+        </header>
+
+        <section class="messages" id="messages">
+
+            <div class="welcome" id="welcome">
+                <div class="big-icon">✨</div>
+
+                <h1>नमस्ते! मैं Rohit AI हूँ</h1>
+
+                <p>
+                    मुझसे कोई भी सवाल पूछो।<br>
+                    मैं तुम्हारी पढ़ाई, कोडिंग और दूसरे विषयों में
+                    मदद करने की कोशिश करूँगा।
+                </p>
+
+                <div class="suggestions">
+                    <button class="suggestion"
+                        data-prompt="मुझे HTML से वेबसाइट बनाना सिखाओ।">
+                        💻 वेबसाइट बनाना सीखें
+                    </button>
+
+                    <button class="suggestion"
+                        data-prompt="मुझे कक्षा 9 की पढ़ाई का टाइम टेबल बनाने में मदद करो।">
+                        📚 पढ़ाई में मदद
+                    </button>
+
+                    <button class="suggestion"
+                        data-prompt="मुझे एक मजेदार कहानी हिंदी में सुनाओ।">
+                        📖 कहानी सुनाओ
+                    </button>
+
+                    <button class="suggestion"
+                        data-prompt="मुझे JavaScript आसान हिंदी में समझाओ।">
+                        ⚡ JavaScript सीखें
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="composer-wrap">
+            <div class="composer">
+
+                <div class="api-row">
+                    <input
+                        id="apiKey"
+                        type="password"
+                        placeholder="अपनी Groq API Key यहाँ डालें"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+
+                    <button id="toggleKey" type="button">
+                        👁 दिखाएँ
+                    </button>
+
+                    <button id="clearKey" type="button">
+                        साफ करें
+                    </button>
+                </div>
+
+                <p class="api-note">
+                    सुरक्षा: Key इस पेज में सेव नहीं होती, लेकिन
+                    ब्राउज़र से API इस्तेमाल करने पर वह नेटवर्क अनुरोध
+                    में दिखाई दे सकती है। सार्वजनिक वेबसाइट पर अपनी
+                    निजी Key इस्तेमाल न करें।
+                </p>
+
+                <form id="chatForm">
+                    <div class="input-row">
+                        <textarea
+                            id="userInput"
+                            rows="1"
+                            maxlength="5000"
+                            placeholder="अपना सवाल यहाँ लिखें..."
+                            aria-label="अपना सवाल लिखें"
+                            required
+                        ></textarea>
+
+                        <button class="send-btn" id="sendBtn"
+                            type="submit" aria-label="मैसेज भेजें">
+                            ➤
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bottom-note">
+                AI के जवाबों में गलती हो सकती है। ज़रूरी जानकारी जाँचें।
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+const API_URL =
+    "https://api.groq.com/openai/v1/chat/completions";
+
+const MODEL = "llama-3.3-70b-versatile";
+
+const messagesEl = document.getElementById("messages");
+const welcomeEl = document.getElementById("welcome");
+const inputEl = document.getElementById("userInput");
+const apiKeyEl = document.getElementById("apiKey");
+const sendBtn = document.getElementById("sendBtn");
+const statusEl = document.getElementById("status");
+const chatForm = document.getElementById("chatForm");
+
+let conversation = [];
+let busy = false;
+
+function addMessage(role, text, isError = false) {
+    if (welcomeEl) {
+        welcomeEl.remove();
+    }
+
+    const row = document.createElement("div");
+    row.className = "message " + role;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = role === "user" ? "👤" : "🤖";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+
+    if (isError) {
+        bubble.classList.add("error");
+    }
+
+    // textContent इस्तेमाल किया गया है ताकि जवाब HTML के रूप में न चले।
+    const content = document.createElement("div");
+    content.textContent = text;
+    bubble.appendChild(content);
+
+    if (role === "assistant" && !isError) {
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 कॉपी करें";
+
+        copyBtn.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(text);
+                copyBtn.textContent = "कॉपी हो गया ✓";
+            } catch {
+                copyBtn.textContent = "कॉपी नहीं हुआ";
+            }
+        });
+
+        bubble.appendChild(copyBtn);
+    }
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    return bubble;
+}
+
+function setBusy(value) {
+    busy = value;
+    sendBtn.disabled = value;
+    inputEl.disabled = value;
+    statusEl.textContent = value ? "● जवाब तैयार हो रहा है..." : "● तैयार";
+}
+
+async function sendMessage(text) {
+    text = text.trim();
+
+    if (!text || busy) return;
+
+    const apiKey = apiKeyEl.value.trim();
+
+    if (!apiKey) {
+        alert("पहले अपनी Groq API Key डालें।");
+        apiKeyEl.focus();
+        return;
+    }
+
+    if (!apiKey.startsWith("gsk_")) {
+        alert("API Key सही लग नहीं रही। Groq से मिली Key जाँचें।");
+        apiKeyEl.focus();
+        return;
+    }
+
+    addMessage("user", text);
+
+    conversation.push({
+        role: "user",
+        content: text
+    });
+
+    inputEl.value = "";
+    inputEl.style.height = "42px";
+
+    setBusy(true);
+
+    const thinking = addMessage("assistant", "सोच रहा हूँ...");
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + apiKey
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                messages: [
+                    {
+                        role: "system",
+                        content:
+                            "You are Rohit AI, a helpful and friendly assistant. " +
+                            "Answer in the language used by the user. " +
+                            "Use simple Hindi when the user writes in Hindi. " +
+                            "Help with education, coding, creativity and general questions."
+                    },
+                    ...conversation
+                ],
+                temperature: 0.7,
+                max_completion_tokens: 1200
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const apiMessage =
+                data?.error?.message ||
+                "API अनुरोध पूरा नहीं हुआ।";
+
+            throw new Error(
+                "Groq API Error (" + response.status + "): " + apiMessage
+            );
+        }
+
+        const answer = data?.choices?.[0]?.message?.content;
+
+        if (!answer) {
+            throw new Error("AI से खाली जवाब मिला। दोबारा कोशिश करें।");
+        }
+
+        conversation.push({
+            role: "assistant",
+            content: answer
+        });
+
+        thinking.textContent = answer;
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 कॉपी करें";
+
+        copyBtn.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(answer);
+                copyBtn.textContent = "कॉपी हो गया ✓";
+            } catch {
+                copyBtn.textContent = "कॉपी नहीं हुआ";
+            }
+        });
+
+        thinking.appendChild(copyBtn);
+
+    } catch (error) {
+        thinking.textContent =
+            "माफ़ करना, जवाब नहीं मिल पाया।\n\n" +
+            (error.message || "नेटवर्क की समस्या है।");
+
+        thinking.classList.add("error");
+
+        // असफल अनुरोध को बातचीत के इतिहास से हटाएँ।
+        conversation.pop();
+    } finally {
+        setBusy(false);
+        inputEl.focus();
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+}
+
+chatForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    sendMessage(inputEl.value);
+});
+
+inputEl.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+
+        if (!busy) {
+            chatForm.requestSubmit();
+        }
+    }
+});
+
+inputEl.addEventListener("input", function() {
+    this.style.height = "42px";
+    this.style.height =
+        Math.min(this.scrollHeight, 150) + "px";
+});
+
+document.getElementById("newChat").addEventListener("click", () => {
+    if (busy) return;
+
+    conversation = [];
+    messagesEl.innerHTML = "";
+
+    const welcome = document.createElement("div");
+    welcome.className = "welcome";
+    welcome.id = "welcome";
+
+    const icon = document.createElement("div");
+    icon.className = "big-icon";
+    icon.textContent = "✨";
+
+    const title = document.createElement("h1");
+    title.textContent = "नई चैट शुरू करें";
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent =
+        "नमस्ते! मैं Rohit AI हूँ। अपना सवाल पूछो।";
+
+    welcome.append(icon, title, paragraph);
+    messagesEl.appendChild(welcome);
+
+    inputEl.value = "";
+    inputEl.focus();
+});
+
+document.getElementById("toggleKey").addEventListener("click", () => {
+    const button = document.getElementById("toggleKey");
+
+    if (apiKeyEl.type === "password") {
+        apiKeyEl.type = "text";
+        button.textContent = "🙈 छिपाएँ";
+    } else {
+        apiKeyEl.type = "password";
+        button.textContent = "👁 दिखाएँ";
+    }
+});
+
+document.getElementById("clearKey").addEventListener("click", () => {
+    apiKeyEl.value = "";
+    apiKeyEl.type = "password";
+    document.getElementById("toggleKey").textContent = "👁 दिखाएँ";
+});
+
+document.querySelectorAll(".suggestion").forEach(button => {
+    button.addEventListener("click", () => {
+        inputEl.value = button.dataset.prompt;
+        inputEl.focus();
+        inputEl.style.height = "42px";
+        inputEl.style.height =
+            Math.min(inputEl.scrollHeight, 150) + "px";
+    });
+});
+</script>
+
+</body>
+</html>
+```
